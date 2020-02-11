@@ -24,7 +24,7 @@ class Kinematics:
         with open(os.path.join(path, 'kinematics.json'), 'r') as f:
             data = json.load(f)
         fingers = ['index', 'mid', 'pinky', 'ring', 'thumb']
-        self._chains = [Chain(n, data) for n in CHAIN_NAME.values()]
+        self._chains = [Chain(n, data) for n in fingers]#CHAIN_NAME.values()]
         self._origin = data['origin']
 
     def getManoPose(self, xyz, quat, dofs):
