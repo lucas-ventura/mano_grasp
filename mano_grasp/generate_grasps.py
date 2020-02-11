@@ -35,6 +35,7 @@ parser.add_argument('--relax_fingers',
                     action='store_true',
                     help="Randomize squezzed fingers positions")
 parser.add_argument('--change_speed', action='store_true', help="Try several joint's speed ratios")
+parser.add_argument('-ds', '--dataset', type=str, default='', help="dataset name")
 
 
 def main(args):
@@ -57,11 +58,11 @@ def main(args):
     if not os.path.isdir(args.path_out):
         os.makedirs(args.path_out)
 
-    if args.models:
+    if not args.models_file and args.models:
         models = args.models
     else:
         with open(args.models_file) as f:
-            models = f.readlines()
+            models = f.read().splitlines()
 
     proccess = GraspitProcess(graspit_dir=args.graspit_dir,
                               plugin_dir=args.plugin_dir,
@@ -87,7 +88,19 @@ def main(args):
             len(body_grasps),
         ))
         with open(os.path.join(args.path_out, '{}.json'.format(body_name)), 'w') as f:
-            json.dump(body_grasps, f)
+            scale = 1
+            split = body_name.split('_scale_')
+            if len(split) > 1:
+                scale = float(split[1])
+            object_id = split[0]
+            grasps_description = {
+                'grasps': body_grasps,
+                'dataset': args.dataset,
+                'object_scale': scale,
+                'object_cat': '',
+                'object_id': object_id
+            }
+            json.dump(grasps_description, f)
 
     if args.debug:
         with GraspitProcess(graspit_dir=args.graspit_dir, plugin_dir=args.plugin_dir) as p:
