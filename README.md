@@ -37,9 +37,13 @@ Make sure you have meshlab installed:
 
     sudo apt install meshlab
 
-To prepare a object files (.obj, .stl, .ply, .off) for graspit run:
+To prepare object files (.obj, .stl, .ply, .off) for graspit:
 
-    python -m mano_grasp.prepare_objects --models_folder /PATH/TO/YOURDATASET/ --file_out YOURDATASET_objects.txt --scales 1000
+    python -m mano_grasp.prepare_objects --models_folder /PATH/TO/YOURDATASET/ --file_out YOURDATASET_objects.txt
+
+Usually you want to apply some scaling to the objects to fit the hand, therefore append scales options:
+
+    --scales 1000
 
 Use 
 
