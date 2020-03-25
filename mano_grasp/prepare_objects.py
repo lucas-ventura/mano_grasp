@@ -6,6 +6,7 @@ import os
 import time
 import subprocess
 import re
+import sys
 
 parser = argparse.ArgumentParser(description='Prepare objects for GraspIt',
     usage="python -m mano_grasp.prepare_objects -f /PATH/TO/YCB/ -o ycb_objects.txt -sc 1000 -n 8 --strip_regex '/google_512k/(non)?textured' ")
@@ -126,14 +127,17 @@ def main(args):
                 models.append(os.path.join(root, filename))
         if len(models) > 0:
             temp_models_file = os.path.join(temp_dir, 'objects_{}.txt'.format(time.strftime("%b_%d_%Y_%H_%M_%S", time.localtime())))
-            with open(temp_models_file, 'wb') as f:
+            with open(temp_models_file, 'w') as f:
                 f.write('\n'.join(models))
                 
             print('No models_file provided but found {} models in {}'.format(len(models), args.models_folder))
             print('Have a look at {} to see the list of objects; you can also edit it'.format(temp_models_file))
             use_response = ''
             while use_response not in ['y', 'n']:
+                if sys.version_info < (3, 0, 0):
                 use_response = raw_input('Do you want to use this object list for conversion (y/n): ')
+                else:
+                    use_response = input('Do you want to use this object list for conversion (y/n): ')
                 if use_response == 'n':
                     os.remove(temp_models_file)
                     exit(0)
@@ -149,7 +153,7 @@ def main(args):
         script = ObjectConverter.SCALE_FILTER_TEMPLATE.format(scale=s)
         script_name = 'scale_{}'.format(s)
         script_file = os.path.join(temp_dir, 'meshlab_{}_filter.mlx'.format(script_name))
-        with open(script_file, 'wb') as f:
+        with open(script_file, 'w') as f:
             f.write(script)
         scripts[script_name] = script_file
 
@@ -167,7 +171,7 @@ def main(args):
     prepared_objects = []
     for object_file, object_names in objects:
         prepared_objects.extend(object_names)
-        with open(args.file_out, 'wb') as f:
+        with open(args.file_out, 'w') as f:
             f.write('\n'.join(prepared_objects))
 
 
