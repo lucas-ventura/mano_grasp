@@ -16,7 +16,9 @@ class GraspMiner:
                  max_steps=0,
                  max_grasps=0,
                  relax_fingers=False,
-                 change_speed=False):
+                 change_speed=False,
+                 robot_names=['ManoHand'],
+                 saver=None):
         """Constructor
         
         Arguments:
@@ -32,7 +34,8 @@ class GraspMiner:
         self._max_steps = max_steps
         self._max_grasps = max_grasps
         self._relax_fingers = relax_fingers
-        self._robot_names = ['ManoHand']
+        self._robot_names = robot_names
+        self._saver = saver
         # we can't change a joints speed ratios on the fly, so use several hand models
         if change_speed:
             self._robot_names += ['ManoHand_v2', 'ManoHand_v3']
@@ -109,4 +112,6 @@ class GraspMiner:
 
             grasps_all.extend(grasps)
 
+        if self._saver:
+            self._saver(object_name, grasps_all)
         return (object_name, grasps_all)
