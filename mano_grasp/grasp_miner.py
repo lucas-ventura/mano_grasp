@@ -1,3 +1,7 @@
+import json
+import itertools
+import os
+import numpy as np
 from graspit_process import GraspitProcess
 from graspit_scene import GraspitScene
 from kinematics import Kinematics
@@ -46,9 +50,19 @@ class GraspMiner:
             self._process.start()
 
         grasps_all = []
-        for robot_name in self._robot_names:
-            # load hand and body
-            scene = GraspitScene(self._process.graspit, robot_name, object_name)
+        collision_path = os.path.join(self._process.dir,
+            'models/objects/{}_collision.json'.format(object_name))
+        collisions = []
+        if os.path.exists(collision_path):
+            collisions = json.load(open(collision_path, 'r'))
+        if not collisions:
+            collisions = [None]
+        for robot_name, collision in itertools.izip(itertools.cycle(self._robot_names), collisions):
+            # load hand and body and optionally collision object
+            gripper = None
+            if (collision is not None) and 'gripper' in collision.keys():
+                gripper = collision['gripper']
+            scene = GraspitScene(self._process.graspit, robot_name, object_name, gripper)
 
             # plan grasps with a standart procedure
             plans = scene.planGrasps(max_steps=self._max_steps)

@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from geometry_msgs.msg import Pose
 
 from kinematics import Kinematics
@@ -8,15 +9,25 @@ from grasp_utils import *
 class GraspitScene:
     """ Scene with a hand (robot) and a body """
 
-    def __init__(self, graspit, robot, body):
+    def __init__(self, graspit, robot, body, collision_object=None):
         default_pose = Pose()
         default_pose.position.y = 0.2
         default_pose.orientation.w = 1
 
         graspit.clearWorld()
         graspit.importRobot(robot)
+        self._robot_ids = graspit.getBodies().ids
         graspit.setRobotPose(default_pose)
         graspit.importGraspableBody(body)
+        
+        self._body_id = graspit.getBodies().ids[-1]
+
+        self._collision_object = collision_object
+        self._collision_object_id = -1
+        if self._collision_object is not None:
+            graspit.importObstacle(self._collision_object['id'], msg_from_pose(self._collision_object['pose']))
+            self._collision_object_id = graspit.getBodies().ids[-1]
+            graspit.toggleCollisions(False, self._collision_object_id, self._body_id)
 
         self._graspit = graspit
         self._robot = robot
@@ -69,7 +80,16 @@ class GraspitScene:
             if quality.result == 0 and quality.epsilon > -1:
                 response = graspit.getRobot()
                 robot = response.robot
-                return grasp_from_robot_state(robot, quality, body, kinematics)
+                grasp = grasp_from_robot_state(robot, quality, body, kinematics)
+                if self._collision_object:
+                    distances = [graspit.getDistance(i,self._collision_object_id).distance for i in self._robot_ids]
+                    distances.extend([graspit.getDistance(i,self._body_id).distance for i in self._robot_ids])
+                    collision_contacts = [c for c in robot.contacts if c.body2 == self._collision_object['id']]
+                    if collision_contacts:
+                        return
+                    grasp['handpart_distances'] = distances
+                    grasp['collision_object'] = self._collision_object
+                return grasp
         except Exception:
             pass
 
