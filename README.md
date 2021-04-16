@@ -17,7 +17,7 @@ To install and setup this interface follow the instructions at https://github.co
 ### Install package
 
 ```
-git clone https://github.com/lwohlhart/mano_grasp.git
+git clone https://github.com/ikalevatykh/mano_grasp.git
 cd mano_grasp
 python setup.py install --user --graspit_dir=$GRASPIT
 ```
