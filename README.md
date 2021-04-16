@@ -71,6 +71,15 @@ to see all available options.
 # Generate grasps from YBC dataset
 First, we will need to dowload the dataset with the script provided here: https://github.com/sea-bass/ycb-tools/blob/main/download_ycb_dataset.py
 
+### Modification to the download_ycb_dataset.py
+- Add `.decode('utf-8')` at the end of line 25
+
+```diff
+-    html = response.read()
++    html = response.read().decode('utf-8')
+```
+
+
 
 # Citations
 
