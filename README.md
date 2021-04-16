@@ -73,10 +73,15 @@ First, we will need to dowload the dataset with the script provided here: https:
 
 ### Modification to the download_ycb_dataset.py
 - Add `.decode('utf-8')` at the end of line 25
-
 ```diff
 -    html = response.read()
 +    html = response.read().decode('utf-8')
+```
+
+- Change line 35
+```diff
+-    files_to_download = ["berkeley_processed", "google_16k"]
++    files_to_download = ["berkeley_processed"]
 ```
 
 
