@@ -8,7 +8,6 @@ import time
 from graspit_process import GraspitProcess
 from graspit_scene import GraspitScene
 from grasp_miner import GraspMiner
-from grasp_saver import GraspSaver
 
 parser = argparse.ArgumentParser(description='Grasp mining')
 parser.add_argument('-m', '--models', nargs='*', default=['glass'])
@@ -71,20 +70,37 @@ def main(args):
                               xvfb_run=args.xvfb,
                               verbose=args.verbose)
 
-    saver = GraspSaver(path_out=args.path_out, dataset=args.dataset)
-
     generator = GraspMiner(graspit_process=proccess,
                            max_steps=args.max_steps,
                            max_grasps=args.max_grasps,
                            relax_fingers=args.relax_fingers,
-                           change_speed=args.change_speed,
-                           saver=saver)
+                           change_speed=args.change_speed)
 
     if args.n_jobs > 1:
         from joblib import Parallel, delayed
         grasps = Parallel(n_jobs=args.n_jobs, verbose=50)(delayed(generator)(m) for m in models)
     else:
         grasps = [generator(body) for body in models]
+
+    for body_name, body_grasps in grasps:
+        print('{}: saving {} grasps'.format(
+            body_name,
+            len(body_grasps),
+        ))
+        with open(os.path.join(args.path_out, '{}.json'.format(body_name)), 'w') as f:
+            scale = 1
+            split = body_name.split('_scale_')
+            if len(split) > 1:
+                scale = float(split[1])
+            object_id = split[0]
+            grasps_description = {
+                'grasps': body_grasps,
+                'dataset': args.dataset,
+                'object_scale': scale,
+                'object_cat': '',
+                'object_id': object_id
+            }
+            json.dump(grasps_description, f)
 
     if args.debug:
         with GraspitProcess(graspit_dir=args.graspit_dir, plugin_dir=args.plugin_dir) as p:

@@ -1,7 +1,3 @@
-import json
-import itertools
-import os
-import numpy as np
 from graspit_process import GraspitProcess
 from graspit_scene import GraspitScene
 from kinematics import Kinematics
@@ -16,9 +12,7 @@ class GraspMiner:
                  max_steps=0,
                  max_grasps=0,
                  relax_fingers=False,
-                 change_speed=False,
-                 robot_names=['ManoHand'],
-                 saver=None):
+                 change_speed=False):
         """Constructor
         
         Arguments:
@@ -34,8 +28,7 @@ class GraspMiner:
         self._max_steps = max_steps
         self._max_grasps = max_grasps
         self._relax_fingers = relax_fingers
-        self._robot_names = robot_names
-        self._saver = saver
+        self._robot_names = ['ManoHand']
         # we can't change a joints speed ratios on the fly, so use several hand models
         if change_speed:
             self._robot_names += ['ManoHand_v2', 'ManoHand_v3']
@@ -53,19 +46,9 @@ class GraspMiner:
             self._process.start()
 
         grasps_all = []
-        collision_path = os.path.join(self._process.dir,
-            'models/objects/{}_collision.json'.format(object_name))
-        collisions = []
-        if os.path.exists(collision_path):
-            collisions = json.load(open(collision_path, 'r'))
-        if not collisions:
-            collisions = [None]
-        for robot_name, collision in itertools.izip(itertools.cycle(self._robot_names), collisions):
-            # load hand and body and optionally collision object
-            gripper = None
-            if (collision is not None) and 'gripper' in collision.keys():
-                gripper = collision['gripper']
-            scene = GraspitScene(self._process.graspit, robot_name, object_name, gripper)
+        for robot_name in self._robot_names:
+            # load hand and body
+            scene = GraspitScene(self._process.graspit, robot_name, object_name)
 
             # plan grasps with a standart procedure
             plans = scene.planGrasps(max_steps=self._max_steps)
@@ -112,6 +95,4 @@ class GraspMiner:
 
             grasps_all.extend(grasps)
 
-        if self._saver:
-            self._saver(object_name, grasps_all)
         return (object_name, grasps_all)
