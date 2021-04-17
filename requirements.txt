@@ -2,3 +2,4 @@ numpy
 transforms3d
 joblib
 pymeshlab
+tqdm
