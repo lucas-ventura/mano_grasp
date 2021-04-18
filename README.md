@@ -71,6 +71,7 @@ to see all available options.
 # Generate grasps from YBC dataset
 First, we will need to dowload the dataset with the script provided here: https://github.com/sea-bass/ycb-tools/blob/main/download_ycb_dataset.py
 
+## Downloading YCB objects
 ### Modification to the download_ycb_dataset.py
 - Add `.decode('utf-8')` at the end of line 25
 ```diff
@@ -78,13 +79,28 @@ First, we will need to dowload the dataset with the script provided here: https:
 +    html = response.read().decode('utf-8')
 ```
 
-- Change line 35
+- Change line 35: 
 ```diff
 -    files_to_download = ["berkeley_processed", "google_16k"]
-+    files_to_download = ["berkeley_processed"]
++    files_to_download = ["google_16k"] # You can also use google_64k or google_512k
 ```
 
+You can now download the models with the script with the following command:
+```python
+python download_ycb_dataset.py
+```
 
+## Convert objects for graspIt
+``prepare_ycb_objects.py`` will scale the objects and genreate the necessary off and xml files for graspIt.
+```python
+python prepare_ycb_objects.py --ycb_folder PATH_TO_YCB_FOLDER --graspit_dir=$GRASPIT
+```
+
+## Generate grasps
+``./generate_ycb_grasps.sh`` will create a ycb_grasps folder and save the generated json files there.
+```console
+foo@bar:~/graspit_ros_ws/src/mano_grasp$ ./generate_ycb_grasps.sh
+```
 
 # Citations
 

@@ -9,6 +9,3 @@ while read obj; do
   # Wait for json file in folder
   while [ ! -f ycb_grasps/"$obj".json ]; do sleep 1; done
 done <prepared_ycb_objects.txt
-
-
-
