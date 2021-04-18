@@ -90,6 +90,18 @@ You can now download the models with the script with the following command:
 python download_ycb_dataset.py
 ```
 
+## Convert objects for graspIt
+``prepare_ycb_objects.py`` will scale the objects and genreate the necessary off and xml files for graspIt.
+```python
+python prepare_ycb_objects.py --ycb_folder PATH_TO_YCB_FOLDER --graspit_dir=$GRASPIT
+```
+
+## Generate grasps
+``./generate_ycb_grasps.sh`` will create a ycb_grasps folder and save the generated json files there.
+```console
+foo@bar:~/graspit_ros_ws/src/mano_grasp$ ./generate_ycb_grasps.sh
+```
+
 # Citations
 
 If you find this code useful for your research, consider citing:
