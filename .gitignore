@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+/prepared_ycb_objects.txt
+
+/ycb_grasps/
+/ycb_objects/
